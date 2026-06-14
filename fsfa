@@ -1,4 +1,5 @@
 import pygame
+from pygame import font
 
 class GameSprite():
     def __init__(self, x, y, width, height, color=None):
@@ -25,7 +26,7 @@ class Player(GameSprite):
 class Player2(GameSprite):
     def __init__(self, x, y, width, height, color=None):
         super().__init__(x, y, width, height, color)
-        self.speed = 15
+        self.speed = 5
     def update(self):
         keys_pressed = pygame.key.get_pressed()
         if keys_pressed[pygame.K_UP] and self.rect.y > 0:
@@ -34,14 +35,14 @@ class Player2(GameSprite):
             self.rect.y += self.speed
 
 class Ball(GameSprite):
-    def __init__(self, x, y, width, height, speed, color=None, image_path=None):
+    def __init__(self, x, y, width, height, speed, color=None, image_path="basketball.png"):
         super().__init__(x, y, width, height, color)
         self.dx = speed
         self.dy = speed
         self.no_lose = False
-        self.image = None
+        self.image = "basketball.png"
         if image_path:
-            self.image = pygame.image.load(image_path)
+            self.image = pygame.image.load("basketball.png")
             self.image = pygame.transform.scale(self.image, (width, height))
 
     def draw(self, surface):
@@ -77,21 +78,47 @@ player1 = Player(10, 100, 15, 80, (50, 205, 50))
 player2 = Player2(window_width - 25, 100, 15, 80, (50, 205, 50))
 players = [player1, player2]
 
-ball = Ball(window_width//2 - 10, window_height//2 - 10, 20, 20, 5, (255, 0, 0))
+ball = Ball(window_width//2 - 10, window_height//2 - 50, 30, 50, 5, (255, 0, 0))
+game_font = pygame.font.Font(None, 40) 
+font_lose = pygame.font.Font(None, 40) 
 
-while game:
-    window.fill((0, 0, 0))
-    for e in pygame.event.get():
-        if e.type == pygame.QUIT:
-            game = False
+game_win = False
+game_lose = False
 
-    player1.update()
-    player2.update()
-    ball.update(players)
+game = True
+clock = pygame.time.Clock()
+window = pygame.display.set_mode((800, 600))
 
-    player1.draw(window)
-    player2.draw(window)
-    ball.draw(window)
+while game: 
+    window.fill((0, 0, 0)) 
+    
+    for e in pygame.event.get(): 
+        if e.type == pygame.QUIT: 
+            game = False 
+            
+    player1.update() 
+    player2.update() 
+    ball.update(players) 
+    
+    player1.draw(window) 
+    player2.draw(window) 
+    ball.draw(window) 
+    
+    if ball.rect.x <= 0: 
+        game_win = True 
+    
+    if game_win: 
+        text_win = font_lose.render('Второй игрок победил!', True, (250, 0, 0)) 
+        window.blit(text_win, (140, 200)) 
 
-    pygame.display.update()
+    if ball.rect.x == 500: 
+        game_lose = True 
+    
+    if game_lose: 
+        text_win = font_lose.render('Первый игрок победил!', True, (0, 128, 0)) 
+        window.blit(text_win, (140, 200))
+        
+    pygame.display.update() 
     clock.tick(60)
+
+pygame.quit()
